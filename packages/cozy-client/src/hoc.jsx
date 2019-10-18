@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import compose from 'lodash/flowRight'
 import Query from './Query'
+import clientContext from './context'
 
 /**
  * @function
@@ -11,13 +12,12 @@ import Query from './Query'
  * @returns {Function} - Component that will receive client as prop
  */
 export const withClient = Component => {
-  const Wrapped = (props, context) => (
-    <Component {...props} client={context.client} />
+  const Wrapped = props => (
+    <clientContext.Consumer>
+      {({ client }) => <Component {...props} client={client} />}
+    </clientContext.Consumer>
   )
   Wrapped.displayName = `withClient(${Component.displayName || Component.name})`
-  Wrapped.contextTypes = {
-    client: PropTypes.object
-  }
   return Wrapped
 }
 
