@@ -985,7 +985,9 @@ class CozyClient {
       throw new Error('Store is undefined')
     } else if (this.store && !force) {
       throw new Error(
-        'Client already has a store, it is forbidden to change store.'
+        `Client already has a store, it is forbidden to change store.
+         You might have called setStore too late ie you might have a dispatching 
+         a query before calling setStore`
       )
     }
 
