@@ -39,4 +39,4 @@ export { default as fetchPolicies } from './policies'
 
 export * from './mock'
 
-export { useClient } from './hooks'
+export { useClient, useQuery } from './hooks'
