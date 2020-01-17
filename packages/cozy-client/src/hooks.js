@@ -1,4 +1,4 @@
-import { useEffect, useContext } from 'react'
+import { useEffect, useContext, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import clientContext from './context'
 
@@ -12,16 +12,25 @@ const resolveQueryDefinition = query => {
   return typeof value === 'function' ? value() : value
 }
 
+const uniqueValue = () => {
+  return (
+    new Date().getTime().toString(36) + (Math.random() * 10 ** 18).toString(36)
+  )
+}
+
 export const useQuery = ({ query }) => {
   if (process.env.NODE_ENV !== 'prod' && !useSelector) {
     throw new Error(
       'You must use react-redux > 7.1.0 to use useQuery (uses useSelector) under the hood'
     )
   }
-  if (!query || !query.as) {
+
+  if (!query) {
     console.warn('Bad query', query)
-    throw new Error('query should have the `as` property')
+    throw new Error('Bad query')
   }
+
+  const as = useMemo(() => query.as || uniqueValue())
 
   const definition = resolveQueryDefinition(query)
 
@@ -31,16 +40,16 @@ export const useQuery = ({ query }) => {
 
   const client = useClient()
   const data = useSelector(() => {
-    return client.getQueryFromState(query.as, {
+    return client.getQueryFromState(as, {
       hydrated: true
     })
   })
   useEffect(() => {
     const shouldFetch = query.fetchPolicy ? query.fetchPolicy(data) : true
     if (shouldFetch) {
-      client.query(definition, { as: query.as })
+      client.query(definition, { as })
     }
-  }, [query])
+  }, [query, as])
 
   const fetchMore = () => {
     throw new Error('Should be implemented')
